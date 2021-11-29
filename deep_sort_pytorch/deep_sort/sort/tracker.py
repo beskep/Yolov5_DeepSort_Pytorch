@@ -1,9 +1,11 @@
 # vim: expandtab:ts=4:sw=4
 from __future__ import absolute_import
+
 import numpy as np
+
+from . import iou_matching
 from . import kalman_filter
 from . import linear_assignment
-from . import iou_matching
 from .track import Track
 
 
@@ -75,12 +77,13 @@ class Tracker:
 
         # Update track set.
         for track_idx, detection_idx in matches:
-            self.tracks[track_idx].update(
-                self.kf, detections[detection_idx], classes[detection_idx])
+            self.tracks[track_idx].update(self.kf, detections[detection_idx],
+                                          classes[detection_idx])
         for track_idx in unmatched_tracks:
             self.tracks[track_idx].mark_missed()
         for detection_idx in unmatched_detections:
-            self._initiate_track(detections[detection_idx], classes[detection_idx].item())
+            self._initiate_track(detections[detection_idx],
+                                 classes[detection_idx].item())
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
@@ -92,8 +95,8 @@ class Tracker:
             features += track.features
             targets += [track.track_id for _ in track.features]
             track.features = []
-        self.metric.partial_fit(
-            np.asarray(features), np.asarray(targets), active_targets)
+        self.metric.partial_fit(np.asarray(features), np.asarray(targets),
+                                active_targets)
 
     def _match(self, detections):
 
@@ -109,9 +112,11 @@ class Tracker:
 
         # Split track set into confirmed and unconfirmed tracks.
         confirmed_tracks = [
-            i for i, t in enumerate(self.tracks) if t.is_confirmed()]
+            i for i, t in enumerate(self.tracks) if t.is_confirmed()
+        ]
         unconfirmed_tracks = [
-            i for i, t in enumerate(self.tracks) if not t.is_confirmed()]
+            i for i, t in enumerate(self.tracks) if not t.is_confirmed()
+        ]
 
         # Associate confirmed tracks using appearance features.
         matches_a, unmatched_tracks_a, unmatched_detections = \
@@ -121,11 +126,13 @@ class Tracker:
 
         # Associate remaining tracks together with unconfirmed tracks using IOU.
         iou_track_candidates = unconfirmed_tracks + [
-            k for k in unmatched_tracks_a if
-            self.tracks[k].time_since_update == 1]
+            k for k in unmatched_tracks_a
+            if self.tracks[k].time_since_update == 1
+        ]
         unmatched_tracks_a = [
-            k for k in unmatched_tracks_a if
-            self.tracks[k].time_since_update != 1]
+            k for k in unmatched_tracks_a
+            if self.tracks[k].time_since_update != 1
+        ]
         matches_b, unmatched_tracks_b, unmatched_detections = \
             linear_assignment.min_cost_matching(
                 iou_matching.iou_cost, self.max_iou_distance, self.tracks,
@@ -137,7 +144,7 @@ class Tracker:
 
     def _initiate_track(self, detection, class_id):
         mean, covariance = self.kf.initiate(detection.to_xyah())
-        self.tracks.append(Track(
-            mean, covariance, self._next_id, class_id, self.n_init, self.max_age,
-            detection.feature))
+        self.tracks.append(
+            Track(mean, covariance, self._next_id, class_id, self.n_init,
+                  self.max_age, detection.feature))
         self._next_id += 1

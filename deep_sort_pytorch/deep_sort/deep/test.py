@@ -1,11 +1,10 @@
-import torch
-import torch.backends.cudnn as cudnn
-import torchvision
-
 import argparse
 import os
 
 from model import Net
+import torch
+import torch.backends.cudnn as cudnn
+import torchvision
 
 parser = argparse.ArgumentParser(description="Train on market1501")
 parser.add_argument("--data-dir", default='data', type=str)
@@ -26,17 +25,17 @@ gallery_dir = os.path.join(root, "gallery")
 transform = torchvision.transforms.Compose([
     torchvision.transforms.Resize((128, 64)),
     torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize(
-        [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    torchvision.transforms.Normalize([0.485, 0.456, 0.406],
+                                     [0.229, 0.224, 0.225])
 ])
-queryloader = torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(query_dir, transform=transform),
-    batch_size=64, shuffle=False
-)
-galleryloader = torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(gallery_dir, transform=transform),
-    batch_size=64, shuffle=False
-)
+queryloader = torch.utils.data.DataLoader(torchvision.datasets.ImageFolder(
+    query_dir, transform=transform),
+                                          batch_size=64,
+                                          shuffle=False)
+galleryloader = torch.utils.data.DataLoader(torchvision.datasets.ImageFolder(
+    gallery_dir, transform=transform),
+                                            batch_size=64,
+                                            shuffle=False)
 
 # net definition
 net = Net(reid=True)

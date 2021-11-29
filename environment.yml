@@ -1,0 +1,32 @@
+name: YOLOv5DeepSort
+channels:
+    - defaults
+    - conda-forge
+    - pytorch
+dependencies:
+    - python
+    # data analysis
+    - numpy>=1.18.5
+    - scipy>=1.4.1
+    - pandas
+    - matplotlib>=3.2.2
+    - seaborn>=0.11.0
+    # image
+    - opencv>=4.1.2
+    - Pillow>=8.0.0
+    # deeplearning
+    - pytorch>=1.7.0
+    - torchvision>=0.8.1
+    - tensorboard>=2.4.1
+    - cudatoolkit>=11.2
+    # etc
+    - PyYAML>=5.3.1
+    - tqdm>=4.41.0
+    - pip
+    - pip:
+          - easydict
+          - thop
+    # dev
+    - pylint
+    - isort
+    - yapf

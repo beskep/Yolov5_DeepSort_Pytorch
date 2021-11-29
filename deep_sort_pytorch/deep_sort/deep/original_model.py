@@ -4,30 +4,36 @@ import torch.nn.functional as F
 
 
 class BasicBlock(nn.Module):
+
     def __init__(self, c_in, c_out, is_downsample=False):
         super(BasicBlock, self).__init__()
         self.is_downsample = is_downsample
         if is_downsample:
-            self.conv1 = nn.Conv2d(
-                c_in, c_out, 3, stride=2, padding=1, bias=False)
+            self.conv1 = nn.Conv2d(c_in,
+                                   c_out,
+                                   3,
+                                   stride=2,
+                                   padding=1,
+                                   bias=False)
         else:
-            self.conv1 = nn.Conv2d(
-                c_in, c_out, 3, stride=1, padding=1, bias=False)
+            self.conv1 = nn.Conv2d(c_in,
+                                   c_out,
+                                   3,
+                                   stride=1,
+                                   padding=1,
+                                   bias=False)
         self.bn1 = nn.BatchNorm2d(c_out)
         self.relu = nn.ReLU(True)
-        self.conv2 = nn.Conv2d(c_out, c_out, 3, stride=1,
-                               padding=1, bias=False)
+        self.conv2 = nn.Conv2d(c_out, c_out, 3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(c_out)
         if is_downsample:
             self.downsample = nn.Sequential(
                 nn.Conv2d(c_in, c_out, 1, stride=2, bias=False),
-                nn.BatchNorm2d(c_out)
-            )
+                nn.BatchNorm2d(c_out))
         elif c_in != c_out:
             self.downsample = nn.Sequential(
                 nn.Conv2d(c_in, c_out, 1, stride=1, bias=False),
-                nn.BatchNorm2d(c_out)
-            )
+                nn.BatchNorm2d(c_out))
             self.is_downsample = True
 
     def forward(self, x):
@@ -45,13 +51,18 @@ def make_layers(c_in, c_out, repeat_times, is_downsample=False):
     blocks = []
     for i in range(repeat_times):
         if i == 0:
-            blocks += [BasicBlock(c_in, c_out, is_downsample=is_downsample), ]
+            blocks += [
+                BasicBlock(c_in, c_out, is_downsample=is_downsample),
+            ]
         else:
-            blocks += [BasicBlock(c_out, c_out), ]
+            blocks += [
+                BasicBlock(c_out, c_out),
+            ]
     return nn.Sequential(*blocks)
 
 
 class Net(nn.Module):
+
     def __init__(self, num_classes=625, reid=False):
         super(Net, self).__init__()
         # 3 128 64
@@ -71,18 +82,13 @@ class Net(nn.Module):
         # 64 32 16
         self.layer3 = make_layers(64, 128, 2, True)
         # 128 16 8
-        self.dense = nn.Sequential(
-            nn.Dropout(p=0.6),
-            nn.Linear(128*16*8, 128),
-            nn.BatchNorm1d(128),
-            nn.ELU(inplace=True)
-        )
+        self.dense = nn.Sequential(nn.Dropout(p=0.6),
+                                   nn.Linear(128 * 16 * 8, 128),
+                                   nn.BatchNorm1d(128), nn.ELU(inplace=True))
         # 256 1 1
         self.reid = reid
         self.batch_norm = nn.BatchNorm1d(128)
-        self.classifier = nn.Sequential(
-            nn.Linear(128, num_classes),
-        )
+        self.classifier = nn.Sequential(nn.Linear(128, num_classes),)
 
     def forward(self, x):
         x = self.conv(x)
