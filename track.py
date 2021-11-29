@@ -208,17 +208,16 @@ def detect(opt):
                                             color=colors(c, True))
 
                         if save_txt:
-                            # to MOT format
+                            # to MOT format + class info
                             bbox_left = output[0]
                             bbox_top = output[1]
                             bbox_w = output[2] - output[0]
                             bbox_h = output[3] - output[1]
                             # Write MOT compliant results to file
+                            line = (frame_idx + 1, id, bbox_left, bbox_top,
+                                    bbox_w, bbox_h, -1, -1, -1, -1, c)
                             with open(txt_path, 'a') as f:
-                                f.write(('%g ' * 10 + '\n') %
-                                        (frame_idx + 1, id, bbox_left, bbox_top,
-                                         bbox_w, bbox_h, -1, -1, -1,
-                                         -1))  # label format
+                                f.write(('%g ' * 11 + '\n') % line)
 
             else:
                 deepsort.increment_ages()
