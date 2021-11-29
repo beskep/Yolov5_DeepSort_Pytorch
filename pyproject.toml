@@ -5,7 +5,7 @@ based_on_style = 'google'
 ignore_patterns = ['build/']
 
 [tool.isort]
-profile = 'google'
+skip = ['yolov5/']
 
 [tool.pylint.MASTER]
 load-plugins = ['pylint.extensions.mccabe', 'pylint.extensions.docparams']

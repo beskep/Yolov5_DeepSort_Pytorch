@@ -5,8 +5,7 @@ import motmetrics as mm
 import numpy as np
 
 mm.lap.default_solver = 'lap'
-from utils.io import read_results
-from utils.io import unzip_objs
+from utils.io import read_results, unzip_objs
 
 
 class Evaluator(object):

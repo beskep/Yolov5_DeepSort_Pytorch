@@ -13,40 +13,54 @@ sys.path.insert(0, './yolov5')
 
 import argparse
 import os
-from pathlib import Path
 import platform
 import shutil
 import time
+from pathlib import Path
 
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
-from yolov5.models.common import DetectMultiBackend
-from yolov5.models.experimental import attempt_load
-from yolov5.utils.datasets import LoadImages
-from yolov5.utils.datasets import LoadStreams
-from yolov5.utils.downloads import attempt_download
-from yolov5.utils.general import check_img_size
-from yolov5.utils.general import check_imshow
-from yolov5.utils.general import LOGGER
-from yolov5.utils.general import non_max_suppression
-from yolov5.utils.general import scale_coords
-from yolov5.utils.general import xyxy2xywh
-from yolov5.utils.plots import Annotator
-from yolov5.utils.plots import colors
-from yolov5.utils.torch_utils import select_device
-from yolov5.utils.torch_utils import time_sync
 
 from deep_sort_pytorch.deep_sort import DeepSort
 from deep_sort_pytorch.utils.parser import get_config
+from yolov5.models.common import DetectMultiBackend
+from yolov5.models.experimental import attempt_load
+from yolov5.utils.datasets import LoadImages, LoadStreams
+from yolov5.utils.downloads import attempt_download
+from yolov5.utils.general import (LOGGER, check_img_size, check_imshow,
+                                  increment_path, non_max_suppression,
+                                  scale_coords, xyxy2xywh)
+from yolov5.utils.plots import Annotator, colors
+from yolov5.utils.torch_utils import select_device, time_sync
 
 
 def detect(opt):
-    out, source, yolo_weights, deep_sort_weights, show_vid, save_vid, save_txt, imgsz, evaluate, half = \
-        opt.output, opt.source, opt.yolo_weights, opt.deep_sort_weights, opt.show_vid, opt.save_vid, \
-            opt.save_txt, opt.imgsz, opt.evaluate, opt.half
-    webcam = source == '0' or source.startswith('rtsp') or source.startswith(
-        'http') or source.endswith('.txt')
+    (
+        out,
+        source,
+        yolo_weights,
+        deep_sort_weights,
+        show_vid,
+        save_vid,
+        save_txt,
+        imgsz,
+        evaluate,
+        half,
+    ) = (
+        opt.output,
+        opt.source,
+        opt.yolo_weights,
+        opt.deep_sort_weights,
+        opt.show_vid,
+        opt.save_vid,
+        opt.save_txt,
+        opt.imgsz,
+        opt.evaluate,
+        opt.half,
+    )
+    webcam = (source == '0' or source.startswith('rtsp') or
+              source.startswith('http') or source.endswith('.txt'))
 
     # initialize deepsort
     cfg = get_config()
@@ -113,8 +127,8 @@ def detect(opt):
 
     save_path = str(Path(out))
     # extract what is in between the last '/' and last '.'
-    txt_file_name = source.split('/')[-1].split('.')[0]
-    txt_path = str(Path(out)) + '/' + txt_file_name + '.txt'
+    txt_file_name = Path(source).stem
+    txt_path = Path(out).joinpath(txt_file_name + '.txt').as_posix()
 
     if pt and device.type != 'cpu':
         model(
@@ -132,8 +146,8 @@ def detect(opt):
         dt[0] += t2 - t1
 
         # Inference
-        visualize = increment_path(save_dir / Path(path).stem,
-                                   mkdir=True) if opt.visualize else False
+        visualize = (increment_path(Path(out) / Path(path).stem, mkdir=True)
+                     if opt.visualize else False)
         pred = model(img, augment=opt.augment, visualize=visualize)
         t3 = time_sync()
         dt[1] += t3 - t2
@@ -264,7 +278,7 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='0', help='source')
     parser.add_argument('--output',
                         type=str,
-                        default='inference/output',
+                        default='output',
                         help='output folder')  # output folder
     parser.add_argument('--imgsz',
                         '--img',

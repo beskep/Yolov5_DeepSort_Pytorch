@@ -1,7 +1,7 @@
 import os
 
-from easydict import EasyDict as edict
 import yaml
+from easydict import EasyDict as edict
 
 
 class YamlParser(edict):
