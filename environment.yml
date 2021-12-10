@@ -18,15 +18,18 @@ dependencies:
     - pytorch>=1.7.0
     - torchvision>=0.8.1
     - tensorboard>=2.4.1
-    - cudatoolkit>=11.2
+    # - cudatoolkit>=11.2
     # etc
     - PyYAML>=5.3.1
     - tqdm>=4.41.0
+    - rich
+    - loguru
     - pip
     - pip:
           - easydict
           - thop
     # dev
+    - pytest
     - pylint
     - isort
     - yapf
